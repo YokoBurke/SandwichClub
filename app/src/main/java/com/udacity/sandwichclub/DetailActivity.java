@@ -3,6 +3,9 @@ package com.udacity.sandwichclub;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,12 +19,21 @@ public class DetailActivity extends AppCompatActivity {
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
 
-    Sandwich sandwich;
+
+    TextView alsoKnownAsTextView;
+    TextView placeOfOriginTextView;
+    TextView descriptionTextView;
+    TextView ingredientsTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        alsoKnownAsTextView = findViewById(R.id.also_known_tv);
+        placeOfOriginTextView = findViewById(R.id.placeoforigin_tv);
+        descriptionTextView = findViewById(R.id.description_tv);
+        ingredientsTextView = findViewById(R.id.ingredients_tv);
 
         ImageView ingredientsIv = findViewById(R.id.image_iv);
 
@@ -41,13 +53,14 @@ public class DetailActivity extends AppCompatActivity {
         String json = sandwiches[position];
         Sandwich sandwich = JsonUtils.parseSandwichJson(json);
 
+
         if (sandwich == null) {
             // Sandwich data unavailable
             closeOnError();
             return;
         }
 
-        populateUI();
+        populateUI(sandwich);
         Picasso.with(this)
                 .load(sandwich.getImage())
                 .into(ingredientsIv);
@@ -60,17 +73,15 @@ public class DetailActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
     }
 
-    private void populateUI() {
+    private void populateUI(Sandwich sandwich) {
 
-        TextView alsoKnownAsTextView = findViewById(R.id.also_known_tv);
-        TextView placeOfOriginTextView = findViewById(R.id.placeoforigin_tv);
-        TextView descriptionTextView = findViewById(R.id.description_tv);
-        TextView ingredientsTextView = findViewById(R.id.ingredients_tv);
 
         String lineCd = System.getProperty("line.separator");
 
+
         placeOfOriginTextView.setText(sandwich.getPlaceOfOrigin());
         descriptionTextView.setText(sandwich.getDescription());
+
 
         StringBuilder AKABuilder = new StringBuilder();
         for (String alsoKnownAsString : sandwich.getAlsoKnownAs()) {
@@ -80,11 +91,13 @@ public class DetailActivity extends AppCompatActivity {
         alsoKnownAsTextView.setText(AKABuilder.toString());
 
         StringBuilder ingredientBuilder = new StringBuilder();
-        for (String ingredientString : sandwich.getAlsoKnownAs()) {
-            AKABuilder.append(ingredientString);
-            AKABuilder.append(lineCd);
+        for (String ingredientString : sandwich.getIngredients()) {
+            ingredientBuilder.append(ingredientString);
+            Log.i("MyIngredients", ingredientString);
+            ingredientBuilder.append(lineCd);
         }
         ingredientsTextView.setText(ingredientBuilder.toString());
+
 
     }
 }
